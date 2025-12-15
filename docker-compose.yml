@@ -1,0 +1,30 @@
+services:
+  mlservice_blue:
+    build: .
+    environment:
+      - MODEL_VERSION=v1.0.0
+    networks:
+      - ml_network
+
+  mlservice_green:
+    build: .
+    environment:
+      - MODEL_VERSION=v1.1.0
+    networks:
+      - ml_network
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - mlservice_blue
+      - mlservice_green
+    networks:
+      - ml_network
+
+networks:
+  ml_network:
+    driver: bridge
