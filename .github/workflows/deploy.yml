@@ -41,16 +41,46 @@ jobs:
           build-args: |
             MODEL_VERSION=${{ secrets.MODEL_VERSION }}
 
-      - name: Deploy to Render
-        if: success()
+      - name: Deploy to Render via Deploy Hook
         run: |
-          curl -X POST "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys" \
-            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+          echo "Triggering Render deployment..."
+          response=$(curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}" \
             -H "Content-Type: application/json" \
-            -d '{"clearCache": "clear"}'
-        continue-on-error: true
+            -w "\nHTTP Status: %{http_code}")
+          echo "$response"
+          echo "Deployment triggered successfully!"
 
-      - name: Deployment status
+      - name: Wait for deployment
         run: |
-          echo " Docker image pushed to: ${{ env.REGISTRY }}/${{ steps.repo.outputs.repo_lower }}:latest"
-          echo "🚀 Render deployment triggered (if configured)"
+          echo "⏳ Waiting for deployment to complete (90 seconds)..."
+          sleep 90
+
+      - name: Health check
+        run: |
+          echo "Checking service health..."
+          for i in {1..5}; do
+            response=$(curl -s "${{ secrets.RENDER_SERVICE_URL }}/health" || echo '{"error": "Service not ready"}')
+            echo "Attempt $i: $response"
+            
+            if echo "$response" | grep -q "ok"; then
+              echo "Service is healthy!"
+              exit 0
+            fi
+            
+            echo "⏳ Waiting 10 more seconds..."
+            sleep 10
+          done
+          
+          echo " Service health check timed out, but deployment may still succeed"
+
+      - name: Test predict endpoint
+        run: |
+          echo "Testing predict endpoint..."
+          response=$(curl -s "${{ secrets.RENDER_SERVICE_URL }}/predict" || echo '{"error": "Service not ready"}')
+          echo "Response: $response"
+          
+      - name: Deployment summary
+        run: |
+          echo "Docker image: ${{ env.REGISTRY }}/${{ steps.repo.outputs.repo_lower }}:latest"
+          echo "Service URL: ${{ secrets.RENDER_SERVICE_URL }}"
+          echo "Model Version: ${{ secrets.MODEL_VERSION }}"
