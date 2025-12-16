@@ -1,4 +1,4 @@
-# ML Model Deployment with CI/CD
+# ML Model Deployment
 
 ## Description
 
@@ -79,13 +79,6 @@ curl -X POST https://ml-service-kvgp.onrender.com/predict \
 ```
 Response: `{"prediction":0,"probabilities":[0.98,0.018,0.0],"version":"v1.0.0","model_loaded":true}`
 
-## CI/CD Pipeline
-
-### ci.yml
-- Runs tests on every push
-- Trains model
-- Uploads model artifact
-
 ### deploy.yml
 - Builds Docker image
 - Pushes to GitHub Container Registry
@@ -109,6 +102,12 @@ Response: `{"prediction":0,"probabilities":[0.98,0.018,0.0],"version":"v1.0.0","
 - Render: Dashboard > ml-service > Logs
 - Docker: `docker logs <container_id>`
 
+**Notifications:**
+
+- GitHub Actions sends automatic notifications via GitHub UI
+- Deployment status visible in Actions tab
+- Optional: Configure email notifications via workflow (requires SMTP credentials)
+
 ## Model Information
 
 - **Dataset:** Iris (150 samples, 4 features, 3 classes)
@@ -125,3 +124,27 @@ docker compose -f docker-compose.blue.yml up -d
 # Using Render Dashboard
 Dashboard > Manual Deploy > Select previous deployment > Redeploy
 ```
+
+
+## Screenshots after succesfull deploy
+
+## Deployment Strategy Verification
+<img width="727" height="64" alt="Screenshot 2025-12-14 at 21 09 27" src="https://github.com/user-attachments/assets/4c0f483a-12c1-4de1-94c6-47273fd87859" />
+
+## GitHub Actions green check
+<img width="1426" height="403" alt="Screenshot 2025-12-15 at 22 22 09" src="https://github.com/user-attachments/assets/7f031b59-ae7a-43b8-a868-05655f47bdb6" />
+
+## Cloud Deployment & Logs
+<img width="1214" height="724" alt="Screenshot 2025-12-15 at 22 21 00" src="https://github.com/user-attachments/assets/7083e77e-77d0-4650-b90e-99d6ad5820a7" />
+
+## API Endpoints Check
+<img width="767" height="133" alt="Screenshot 2025-12-14 at 23 11 11" src="https://github.com/user-attachments/assets/b807afc1-371e-4447-a1fa-b86f2e5b8b44" />
+
+## Notifications
+<img width="505" height="252" alt="Screenshot 2025-12-15 at 22 23 42" src="https://github.com/user-attachments/assets/6affb8f5-c086-4e7c-b8ee-dc679b23161b" />
+
+
+
+
+
+
